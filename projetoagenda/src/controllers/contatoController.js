@@ -1,3 +1,5 @@
+//importando o ContatoModel para poder criar um new Contato
+//
 const Contato = require('../models/ContatoModel');
 
 exports.index = (req, res) => {
@@ -6,18 +8,24 @@ exports.index = (req, res) => {
   });
 };
 
+//método register que vamos usar no routes quando contatoController.register
 exports.register = async(req, res) => {
+  //funções assíncronas precisam estar em um try catch para prevenir erros
   try {
+    //criando um novo Contato
     const contato = new Contato(req.body);
+    //await para executar o register
     await contato.register();
-
+    
+    //if para verificar se há algum erro, caso haja salvar a sessão e redirecionar para página anterior
     if(contato.errors.length > 0) {
       req.flash('errors', contato.errors);
       req.session.save(() => res.redirect('back'));
       return;
     }
-
+    //mensagem de flash após cadastrar um contato com sucesso
     req.flash('success', 'Contato registrado com sucesso.');
+    //redirecionar para a página com o id do contato como params.body
     req.session.save(() => res.redirect(`/contato/index/${contato.contato._id}`));
     return;
   } catch(e) {
